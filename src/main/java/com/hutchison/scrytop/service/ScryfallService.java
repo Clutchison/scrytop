@@ -31,7 +31,7 @@ public class ScryfallService {
     public Optional<Card> getCardByName(String name) {
         String suffix = "/cards/named?exact=" + encode(name);
         String send = send(suffix);
-        log.debug(send);
+        System.out.println(send);
         return Optional.empty();
     }
 
