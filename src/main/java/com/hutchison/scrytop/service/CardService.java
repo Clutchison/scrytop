@@ -27,9 +27,10 @@ public class CardService {
     }
 
     public Optional<Card> getCardByName(String name) {
-        return cardRepository.findByName(name).stream()
-                .filter(card -> !card.getSetType().equals("token"))
-                .findFirst();
+
+//        return cardRepository.findByName(name).stream()
+//                .filter(card -> !card.getSetType().equals("token"))
+//                .findFirst();
     }
 
     public List<Card> getCardsByName(String name) {
