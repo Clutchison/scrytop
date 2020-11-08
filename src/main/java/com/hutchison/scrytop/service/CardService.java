@@ -20,14 +20,18 @@ import static com.hutchison.scrytop.service.ServiceUtils.likeifyString;
 public class CardService {
 
     CardRepository cardRepository;
+    ScryfallService scryfallService;
 
     @Autowired
-    public CardService(CardRepository cardRepository) {
+    public CardService(CardRepository cardRepository,
+                       ScryfallService scryfallService) {
         this.cardRepository = cardRepository;
+        this.scryfallService = scryfallService;
     }
 
     public Optional<Card> getCardByName(String name) {
 
+        return scryfallService.getCardByName(name);
 //        return cardRepository.findByName(name).stream()
 //                .filter(card -> !card.getSetType().equals("token"))
 //                .findFirst();

@@ -2,7 +2,7 @@ package com.hutchison.scrytop.service;
 
 import com.hutchison.scrytop.model.card.entity.Card;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Log4j2
+@Service
 public class ScryfallService {
 
     private static final String BASE_URL = "https://api.scryfall.com";
@@ -36,7 +37,7 @@ public class ScryfallService {
 
     private String encode(String name) {
         try {
-            log.log(Level.DEBUG, "Attempting to encode " + name + " for url.");
+            log.debug("Attempting to encode " + name + " for url.");
             return java.net.URLEncoder.encode(name, StandardCharsets.UTF_8.toString());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -68,7 +69,7 @@ public class ScryfallService {
 
     private void sleep(long millis) {
         try {
-            log.log(Level.DEBUG, "Sleeping for " + millis + " millis.");
+            log.debug("Sleeping for " + millis + " millis.");
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
