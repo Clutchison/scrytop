@@ -32,9 +32,12 @@ public class ScryfallService {
     }
 
 
-    public Optional<Card> getCardByName(String name) {
+    public Optional<ScryfallCardDto> getCardByName(String name) {
         String suffix = "/cards/named?exact=" + encode(name);
-        String json = send(suffix);
+        return cardFromJson(send(suffix));
+    }
+
+    private Optional<ScryfallCardDto> cardFromJson(String json) {
         ScryfallCardDto card;
         try {
             log.debug("Attempting to convert card json to dto.");
@@ -43,7 +46,7 @@ public class ScryfallService {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return Optional.of(Card.fromDto(card));
+        return Optional.of(card);
     }
 
     private String encode(String name) {
@@ -57,7 +60,7 @@ public class ScryfallService {
     }
 
     private String send(String suffix) {
-        seepIfNecessary();
+        sleepIfNecessary();
 
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -77,7 +80,7 @@ public class ScryfallService {
         return response.body();
     }
 
-    private void seepIfNecessary() {
+    private void sleepIfNecessary() {
         if (lastRequestSendTime == null) return;
         long millisSinceLastRequest = new Date().getTime() - lastRequestSendTime.getTime();
         if (millisSinceLastRequest < MIN_WAIT_MILLIS) sleep(MIN_WAIT_MILLIS - millisSinceLastRequest);

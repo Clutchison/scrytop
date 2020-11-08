@@ -201,7 +201,7 @@ public class Card implements Serializable {
     // todo preview.source_uri
     // todo preview.source
 
-    public static Card fromDto(ScryfallCardDto dto, Set<RelatedCard> relatedCards) {
+    public static Card fromScryfallDto(ScryfallCardDto dto, Set<RelatedCard> relatedCards) {
         return Card.builder()
                 .uuid(dto.getUuid())
                 .lang(dto.getLang())
@@ -270,8 +270,8 @@ public class Card implements Serializable {
                 .build();
     }
 
-    public static Card fromDto(ScryfallCardDto dto) {
-        return fromDto(dto, null);
+    public static Card fromScryfallDto(ScryfallCardDto dto) {
+        return fromScryfallDto(dto, null);
     }
 
     public CardDto toDto() {

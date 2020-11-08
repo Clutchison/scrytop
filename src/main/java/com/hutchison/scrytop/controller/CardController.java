@@ -1,5 +1,6 @@
 package com.hutchison.scrytop.controller;
 
+import com.hutchison.scrytop.model.card.dto.CardDto;
 import com.hutchison.scrytop.model.card.entity.Card;
 import com.hutchison.scrytop.model.card.enums.CardImgType;
 import com.hutchison.scrytop.service.CardImgService;
@@ -32,9 +33,10 @@ public class CardController {
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<Card> getCardByName(@PathVariable String name) {
+    public ResponseEntity<CardDto> getCardByName(@PathVariable String name) {
         Optional<Card> cardByName = cardService.getCardByName(name);
-        return cardByName.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return cardByName.map(card -> ResponseEntity.ok(card.toDto()))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/name/{name}/fuzzy")

@@ -43,7 +43,7 @@ public class CardLoader {
         log.debug("DTO size: " + dtos.size());
         Map<ScryfallCardDto, Set<RelatedCard>> savedRelatedCards = saveRelatedCards(dtos);
         Set<Card> cards = savedRelatedCards.entrySet().stream()
-                .map(es -> Card.fromDto(es.getKey(), es.getValue()))
+                .map(es -> Card.fromScryfallDto(es.getKey(), es.getValue()))
                 .collect(Collectors.toSet());
 //        cardRepository.saveAll(cards);
     }

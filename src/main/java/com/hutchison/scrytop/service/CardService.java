@@ -1,5 +1,6 @@
 package com.hutchison.scrytop.service;
 
+import com.hutchison.scrytop.model.card.dto.ScryfallCardDto;
 import com.hutchison.scrytop.model.card.entity.Card;
 import com.hutchison.scrytop.model.card.enums.Color;
 import com.hutchison.scrytop.repository.CardRepository;
@@ -8,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -30,11 +33,13 @@ public class CardService {
     }
 
     public Optional<Card> getCardByName(String name) {
-
-        return scryfallService.getCardByName(name);
-//        return cardRepository.findByName(name).stream()
-//                .filter(card -> !card.getSetType().equals("token"))
-//                .findFirst();
+        Optional<Card> postgresCard = cardRepository.findByName(name).stream()
+                .filter(card -> !card.getSetType().equals("token")) // Excludes token from search.
+                .findFirst();
+        if (postgresCard.isPresent()) return postgresCard;
+        Optional<ScryfallCardDto> scryfallCard = scryfallService.getCardByName(name);
+        scryfallCard.ifPresent(scryfallCardDto -> cardRepository.save(Card.fromScryfallDto(scryfallCardDto)));
+        return scryfallCard.map(Card::fromScryfallDto);
     }
 
     public List<Card> getCardsByName(String name) {
