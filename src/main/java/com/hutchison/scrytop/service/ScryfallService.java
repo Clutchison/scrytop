@@ -1,5 +1,8 @@
 package com.hutchison.scrytop.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hutchison.scrytop.model.card.dto.ScryfallCardDto;
 import com.hutchison.scrytop.model.card.entity.Card;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ public class ScryfallService {
     private static Date lastRequestSendTime = null;
     private static final long MIN_WAIT_MILLIS = 100;
     private final HttpClient client;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ScryfallService() {
         client = HttpClient.newHttpClient();
@@ -30,9 +34,16 @@ public class ScryfallService {
 
     public Optional<Card> getCardByName(String name) {
         String suffix = "/cards/named?exact=" + encode(name);
-        String send = send(suffix);
-        System.out.println(send);
-        return Optional.empty();
+        String json = send(suffix);
+        ScryfallCardDto card;
+        try {
+            log.debug("Attempting to convert card json to dto.");
+            card = objectMapper.readValue(json, ScryfallCardDto.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return Optional.of(Card.fromDto(card));
     }
 
     private String encode(String name) {
