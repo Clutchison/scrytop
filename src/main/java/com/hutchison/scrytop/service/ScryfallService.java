@@ -21,7 +21,7 @@ public class ScryfallService {
     private static final String BASE_URL = "https://api.scryfall.com";
     private static Date lastRequestSendTime = null;
     private static final long MIN_WAIT_MILLIS = 100;
-    private HttpClient client;
+    private final HttpClient client;
 
     public ScryfallService() {
         client = HttpClient.newHttpClient();
@@ -46,8 +46,7 @@ public class ScryfallService {
     }
 
     private String send(String suffix) {
-        long millisSinceLastRequest = new Date().getTime() - lastRequestSendTime.getTime();
-        if (millisSinceLastRequest < MIN_WAIT_MILLIS) sleep(MIN_WAIT_MILLIS - millisSinceLastRequest);
+        seepIfNecessary();
 
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -65,6 +64,12 @@ public class ScryfallService {
 
         lastRequestSendTime = new Date();
         return response.body();
+    }
+
+    private void seepIfNecessary() {
+        if (lastRequestSendTime == null) return;
+        long millisSinceLastRequest = new Date().getTime() - lastRequestSendTime.getTime();
+        if (millisSinceLastRequest < MIN_WAIT_MILLIS) sleep(MIN_WAIT_MILLIS - millisSinceLastRequest);
     }
 
     private void sleep(long millis) {
