@@ -1,7 +1,7 @@
 package com.hutchison.scrytop.service;
 
 import com.hutchison.scrytop.model.card.dto.RelatedCardDto;
-import com.hutchison.scrytop.model.card.dto.ScryfallCardDto;
+import com.hutchison.scrytop.model.scryfall.ScryfallCardDto;
 import com.hutchison.scrytop.model.card.entity.Card;
 import com.hutchison.scrytop.model.card.entity.RelatedCard;
 import com.hutchison.scrytop.repository.CardRepository;

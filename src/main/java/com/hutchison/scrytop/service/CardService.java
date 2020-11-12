@@ -1,18 +1,20 @@
 package com.hutchison.scrytop.service;
 
-import com.hutchison.scrytop.model.card.dto.ScryfallCardDto;
 import com.hutchison.scrytop.model.card.entity.Card;
+import com.hutchison.scrytop.model.card.enums.CardImgType;
 import com.hutchison.scrytop.model.card.enums.Color;
+import com.hutchison.scrytop.model.scryfall.ScryfallCardDto;
 import com.hutchison.scrytop.repository.CardRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,13 +45,39 @@ public class CardService {
     }
 
     public List<Card> getCardsByName(String name) {
-        List<Card> cards = cardRepository.findByNameLike(likeifyString(name)).stream()
-                .filter(card -> !card.getSetType().equals("token"))
-                .collect(Collectors.toList());
-        Optional<Card> exactMatch = cards.stream()
-                .filter(c -> c.getName().toLowerCase().equals(name.toLowerCase()))
-                .findFirst();
-        return exactMatch.map(Arrays::asList).orElse(cards);
+        throw new NotYetImplementedException();
+//        List<Card> cards = cardRepository.findByNameLike(likeifyString(name)).stream()
+//                .filter(card -> !card.getSetType().equals("token"))
+//                .collect(Collectors.toList());
+//        Optional<Card> exactMatch = cards.stream()
+//                .filter(c -> c.getName().toLowerCase().equals(name.toLowerCase()))
+//                .findFirst();
+//        return exactMatch.map(Arrays::asList).orElse(cards);
+    }
+
+    public Map<String, Card> getCardsByNameList(List<String> names) {
+        if (names == null) return new HashMap<>();
+        Map<String, Card> postgresCards = cardRepository.findByNameIn(names).stream()
+                .collect(Collectors.toMap(
+                        Card::getName,
+                        card -> card
+                ));
+        // Fix for cards without exact names. (cards with split names usually)
+        names.stream()
+                .filter(name -> postgresCards.get(name) == null)
+                .forEach(name -> {
+                    Optional<Card> foundCard = cardRepository.findFirstByNameLike(likeifyString(name));
+                    foundCard.ifPresent(card -> postgresCards.put(name, card));
+                });
+        Map<String, Card> scryfallCards = scryfallService.getCardsByNameList(names.stream()
+                .filter(name -> postgresCards.get(name) == null)
+                .collect(Collectors.toList()));
+        cardRepository.saveAll(scryfallCards.values());
+        return names.stream()
+                .collect(Collectors.toMap(
+                        name -> name,
+                        name -> postgresCards.get(name) != null ? postgresCards.get(name) : scryfallCards.get(name)
+                ));
     }
 
     public Optional<Card> getTokenByName(String name) {
@@ -62,10 +90,36 @@ public class CardService {
         return cardRepository.findBySet(setAbrev);
     }
 
+    public Optional<byte[]> getImageByCardName(String name, CardImgType type) {
+        Optional<Card> card = getCardByName(name);
+//        return card.isPresent() ?
+//                getCardImageUriByType(card.get(), type) : Optional.empty();
+        throw new NotYetImplementedException();
+    }
+
     public List<Card> getCardsInSetByColor(String setAbrev, char colorChar) {
         Color color = Color.fromCharacter(colorChar);
         return cardRepository.findBySet(setAbrev).stream()
                 .filter(c -> c.getColors().isColor(color))
                 .collect(Collectors.toList());
+    }
+
+    private URI getCardImageUriByType(Card card, CardImgType type) {
+        switch (type) {
+            case PNG:
+                return card.getImageURIs().getPng();
+            case SMALL:
+                return card.getImageURIs().getSmall();
+            case NORMAL:
+                return card.getImageURIs().getNormal();
+            case LARGE:
+                return card.getImageURIs().getLarge();
+            case ARTCROP:
+                return card.getImageURIs().getArtCrop();
+            case BORDERCROP:
+                return card.getImageURIs().getBorderCrop();
+            default:
+                return null;
+        }
     }
 }

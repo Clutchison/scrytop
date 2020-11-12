@@ -26,10 +26,16 @@ public class DraftController {
     }
 
     @GetMapping("/wotc/{si1}/{si2}/{si3}/{playerCount}")
-    public ResponseEntity<Draft> getCardByName(@PathVariable String si1,
+    public ResponseEntity<Draft> getDraft(@PathVariable String si1,
                                                @PathVariable String si2,
                                                @PathVariable String si3,
                                                @PathVariable Integer playerCount) {
         return ResponseEntity.ok(draftService.getDraft(Arrays.asList(si1, si2, si3), playerCount));
+    }
+
+    @GetMapping("/cube/{cubeIdentifier}/{playerCount}")
+    public ResponseEntity<Draft> getCubeDraft(@PathVariable String cubeIdentifier,
+                                               @PathVariable Integer playerCount) {
+        return ResponseEntity.ok(draftService.getCubeDraft(cubeIdentifier, playerCount));
     }
 }

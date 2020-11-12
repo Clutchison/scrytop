@@ -20,7 +20,8 @@ public enum Layout {
     AUGMENT,
     HOST,
     ART_SERIES,
-    DOUBLE_SIDED;
+    DOUBLE_SIDED,
+    MODAL_DFC;
 
     @JsonValue
     public String getJsonValue() {

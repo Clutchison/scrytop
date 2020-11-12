@@ -2,9 +2,15 @@ package com.hutchison.scrytop.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hutchison.scrytop.model.card.dto.ScryfallCardDto;
 import com.hutchison.scrytop.model.card.entity.Card;
+import com.hutchison.scrytop.model.scryfall.CardIdentifier;
+import com.hutchison.scrytop.model.scryfall.CollectionList;
+import com.hutchison.scrytop.model.scryfall.ScryfallCardDto;
+import com.hutchison.scrytop.model.scryfall.response.CollectionResponse;
+import com.hutchison.scrytop.model.scryfall.response.ErrorResponse;
+import com.hutchison.scrytop.model.scryfall.response.ScryfallResponse;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -15,7 +21,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -34,7 +43,43 @@ public class ScryfallService {
 
     public Optional<ScryfallCardDto> getCardByName(String name) {
         String suffix = "/cards/named?exact=" + encode(name);
-        return cardFromJson(send(suffix));
+        return cardFromJson(sendGet(suffix));
+    }
+
+    public Map<String, Card> getCardsByNameList(List<String> names) {
+        String suffix = "/cards/collection";
+        List<CollectionList> collectionLists =
+                ListUtils.partition(names, 75).stream()
+                        .map(nameSubList ->
+                                CollectionList.builder()
+                                        .identifiers(nameSubList.stream()
+                                                .map(name -> CardIdentifier.builder()
+                                                        .name(name)
+                                                        .build())
+                                                .collect(Collectors.toList()))
+                                        .build())
+                        .collect(Collectors.toList());
+
+        List<CollectionResponse> responses = collectionLists.stream()
+                .map(cl -> sendPost(suffix, cl))
+                .filter(resp -> resp instanceof CollectionResponse)
+                .map(resp -> (CollectionResponse) resp)
+                .collect(Collectors.toList());
+
+        List<String> cardNamesNotFound = responses.stream()
+                .flatMap(resp -> resp.getNotFound().stream())
+                .map(CardIdentifier::getName)
+                .collect(Collectors.toList());
+        if (cardNamesNotFound.size() > 0)
+            throw new RuntimeException("Card names not found from scryfall: " + String.join(", ", cardNamesNotFound));
+
+        return responses.stream()
+                .flatMap(resp -> resp.getCards().stream())
+                .map(Card::fromScryfallDto)
+                .collect(Collectors.toMap(
+                        Card::getName,
+                        card -> card
+                ));
     }
 
     private Optional<ScryfallCardDto> cardFromJson(String json) {
@@ -59,7 +104,38 @@ public class ScryfallService {
         }
     }
 
-    private String send(String suffix) {
+    private ScryfallResponse sendPost(String suffix, Object bodyObject) {
+        sleepIfNecessary();
+
+        String requestBody;
+        try {
+            requestBody = objectMapper.writeValueAsString(bodyObject);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to map object to request body.");
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .setHeader("Content-Type", "application/json")
+                .uri(URI.create(BASE_URL + suffix))
+                .build();
+
+        log.debug("Attempting to send POST to " + BASE_URL + suffix);
+        String responseBody = send(request).body();
+
+        try {
+            ScryfallResponse response = objectMapper.readValue(responseBody, ScryfallResponse.class);
+            if (response instanceof ErrorResponse)
+                throw new RuntimeException("Error calling scryfall: " + response.toString());
+            return response;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error parsing collection response.");
+        }
+    }
+
+    private String sendGet(String suffix) {
         sleepIfNecessary();
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -67,17 +143,20 @@ public class ScryfallService {
                 .uri(URI.create(BASE_URL + suffix))
                 .build();
 
+        log.debug("Attempting to send GET to " + BASE_URL + suffix);
+        return send(request).body();
+    }
+
+    private HttpResponse<String> send(HttpRequest request) {
         HttpResponse<String> response;
         try {
-            log.debug("Attempting to send GET to " + BASE_URL + suffix);
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-
         lastRequestSendTime = new Date();
-        return response.body();
+        return response;
     }
 
     private void sleepIfNecessary() {

@@ -1,7 +1,6 @@
 package com.hutchison.scrytop.model.card.entity;
 
 import com.hutchison.scrytop.model.card.dto.CardDto;
-import com.hutchison.scrytop.model.card.dto.ScryfallCardDto;
 import com.hutchison.scrytop.model.card.enums.BorderColor;
 import com.hutchison.scrytop.model.card.enums.ColorCombo;
 import com.hutchison.scrytop.model.card.enums.Frame;
@@ -9,6 +8,7 @@ import com.hutchison.scrytop.model.card.enums.FrameEffect;
 import com.hutchison.scrytop.model.card.enums.Game;
 import com.hutchison.scrytop.model.card.enums.Layout;
 import com.hutchison.scrytop.model.card.enums.Rarity;
+import com.hutchison.scrytop.model.scryfall.ScryfallCardDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +35,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -201,6 +202,11 @@ public class Card implements Serializable {
     // todo preview.source_uri
     // todo preview.source
 
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
     public static Card fromScryfallDto(ScryfallCardDto dto, Set<RelatedCard> relatedCards) {
         return Card.builder()
                 .uuid(dto.getUuid())
@@ -328,7 +334,7 @@ public class Card implements Serializable {
                 .variationOf(getVariationOf())
                 .watermark(getWatermark())
                 .colors(colors.getColors())
-                .colorIndicator(colorIndicator.getColors())
+                .colorIndicator(colorIndicator == null ? new HashSet<>() : colorIndicator.getColors())
                 .legalities((getLegalities().toDto()))
                 .frameEffects(getFrameEffects())
                 .imageURIsDto(getImageURIs().toDto())
@@ -338,9 +344,11 @@ public class Card implements Serializable {
                         getCardFaces().stream()
                                 .map(CardFace::toDto)
                                 .collect(Collectors.toSet()))
-                .allParts(getAllParts().stream()
-                        .map(RelatedCard::toDto)
-                        .collect(Collectors.toSet()))
+                .allParts(getAllParts() == null ?
+                        new HashSet<>() :
+                        getAllParts().stream()
+                                .map(RelatedCard::toDto)
+                                .collect(Collectors.toSet()))
                 .build();
     }
 }
