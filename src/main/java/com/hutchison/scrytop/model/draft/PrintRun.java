@@ -49,7 +49,7 @@ public class PrintRun {
         // todo: Booster logic
         return Booster.builder()
                 .setIdentifier(setIdentifier)
-                .cards(cards)
+                .cards(cards.stream().map(Card::toBoosterCard).collect(Collectors.toList()))
                 .build();
     }
 

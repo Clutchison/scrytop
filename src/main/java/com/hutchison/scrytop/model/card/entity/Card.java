@@ -8,6 +8,7 @@ import com.hutchison.scrytop.model.card.enums.FrameEffect;
 import com.hutchison.scrytop.model.card.enums.Game;
 import com.hutchison.scrytop.model.card.enums.Layout;
 import com.hutchison.scrytop.model.card.enums.Rarity;
+import com.hutchison.scrytop.model.draft.BoosterCard;
 import com.hutchison.scrytop.model.scryfall.ScryfallCardDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -349,6 +350,13 @@ public class Card implements Serializable {
                         getAllParts().stream()
                                 .map(RelatedCard::toDto)
                                 .collect(Collectors.toSet()))
+                .build();
+    }
+
+    public BoosterCard toBoosterCard() {
+        return BoosterCard.builder()
+                .name(name)
+                .imageURIs(imageURIs)
                 .build();
     }
 }

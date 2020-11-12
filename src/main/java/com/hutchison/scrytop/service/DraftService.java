@@ -45,7 +45,6 @@ public class DraftService {
     public Draft getCubeDraft(String cubeIdentifier, Integer playerCount) {
         Map<String, Card> cubeCards = cardService.getCardsByNameList(
                 ServiceUtils.loadCardList("cubeLists/" + cubeIdentifier + ".txt")
-                .subList(0, 200) // todo remove
         );
         validateAllCardsFound(cubeCards);
         CubePool pool = CubePool.builder()

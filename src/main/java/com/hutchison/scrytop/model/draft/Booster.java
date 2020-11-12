@@ -5,15 +5,16 @@ import lombok.Builder;
 import lombok.Value;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 @Builder
 public class Booster {
 
     String setIdentifier;
-    List<Card> cards;
+    List<BoosterCard> cards;
 
-    private Booster(String setIdentifier, List<Card> cards) {
+    private Booster(String setIdentifier, List<BoosterCard> cards) {
         this.setIdentifier = setIdentifier;
         this.cards = cards;
     }
