@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -102,6 +103,21 @@ public class CardService {
         return cardRepository.findBySet(setAbrev).stream()
                 .filter(c -> c.getColors().isColor(color))
                 .collect(Collectors.toList());
+    }
+
+    public Optional<String> fixImageURIs() {
+        List<Card> cardsToFix = cardRepository.findByNullCardImageUri();
+        if (cardsToFix.size() == 0) return Optional.of("No cards to fix.");
+        List<String> cardNames = cardsToFix.stream().map(Card::getName).collect(Collectors.toList());
+        cardRepository.deleteAll(cardsToFix);
+        Map<String, Card> scryfallCards = scryfallService.getCardsByNameList(cardNames);
+        cardRepository.saveAll(scryfallCards.values().stream().filter(Objects::nonNull).collect(Collectors.toList()));
+        return Optional.of(
+                "Results: \n" +
+                        scryfallCards.entrySet().stream()
+                                .map(es -> es.getKey() + ": " + (es.getValue() == null ? "Fail" : "Success"))
+                                .collect(Collectors.joining("\n"))
+        );
     }
 
     private URI getCardImageUriByType(Card card, CardImgType type) {

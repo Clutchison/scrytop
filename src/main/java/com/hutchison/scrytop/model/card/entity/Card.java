@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -356,7 +357,15 @@ public class Card implements Serializable {
     public BoosterCard toBoosterCard() {
         return BoosterCard.builder()
                 .name(name)
-                .imageURIs(imageURIs)
+                .imageURIs(
+                        imageURIs == null ?
+                                cardFaces.stream()
+                                        .filter(face -> StringUtils.isEmpty(face.getManaCost()))
+                                        .map(CardFace::getImagesURIs)
+                                        .findFirst()
+                                        .orElse(null) :
+                                imageURIs
+                )
                 .build();
     }
 }

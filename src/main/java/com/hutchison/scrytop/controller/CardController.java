@@ -55,4 +55,10 @@ public class CardController {
         Optional<byte[]> img = cardImgService.getImageByCardName(name, CardImgType.valueOf(type.toUpperCase()));
         return img.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping(value = "/fix/imageURIs")
+    public ResponseEntity<String> fixImageURIs() {
+        Optional<String> response = cardService.fixImageURIs();
+        return response.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

@@ -25,7 +25,7 @@ public class DraftController {
         this.draftService = draftService;
     }
 
-    @GetMapping("/wotc/{si1}/{si2}/{si3}/{playerCount}")
+    @GetMapping("/wotc/{si1}/{si2}/{si3}/players/{playerCount}")
     public ResponseEntity<Draft> getDraft(@PathVariable String si1,
                                                @PathVariable String si2,
                                                @PathVariable String si3,
@@ -33,7 +33,7 @@ public class DraftController {
         return ResponseEntity.ok(draftService.getDraft(Arrays.asList(si1, si2, si3), playerCount));
     }
 
-    @GetMapping("/cube/{cubeIdentifier}/{playerCount}")
+    @GetMapping("/cube/{cubeIdentifier}/players/{playerCount}")
     public ResponseEntity<Draft> getCubeDraft(@PathVariable String cubeIdentifier,
                                                @PathVariable Integer playerCount) {
         return ResponseEntity.ok(draftService.getCubeDraft(cubeIdentifier, playerCount));
