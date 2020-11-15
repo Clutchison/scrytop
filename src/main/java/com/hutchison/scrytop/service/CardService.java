@@ -40,8 +40,8 @@ public class CardService {
     public Optional<Card> getCardByMultiId(String id) {
         Optional<ScryfallCardDto> cardByMultiverseId = scryfallService.getCardByMultiverseId(id);
         if (cardByMultiverseId.isPresent()) {
-            Card saveCard = cardRepository.save(Card.fromScryfallDto(cardByMultiverseId.get()));
-            return Optional.of(saveCard);
+//            Card saveCard = cardRepository.save(Card.fromScryfallDto(cardByMultiverseId.get()));
+            return Optional.of(Card.fromScryfallDto(cardByMultiverseId.get()));
         } else {
             return Optional.empty();
         }
