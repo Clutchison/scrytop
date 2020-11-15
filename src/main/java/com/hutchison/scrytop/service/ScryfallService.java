@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -43,6 +44,11 @@ public class ScryfallService {
 
     public Optional<ScryfallCardDto> getCardByName(String name) {
         String suffix = "/cards/named?exact=" + encode(name);
+        return cardFromJson(sendGet(suffix));
+    }
+
+    public Optional<ScryfallCardDto> getCardByMultiverseId(String id) {
+        String suffix = "/cards/" + id;
         return cardFromJson(sendGet(suffix));
     }
 

@@ -1,5 +1,6 @@
 package com.hutchison.scrytop.controller;
 
+import com.hutchison.scrytop.model.draft.BoosterCard;
 import com.hutchison.scrytop.model.draft.Draft;
 import com.hutchison.scrytop.service.DraftService;
 import lombok.AccessLevel;
@@ -27,15 +28,20 @@ public class DraftController {
 
     @GetMapping("/wotc/{si1}/{si2}/{si3}/players/{playerCount}")
     public ResponseEntity<Draft> getDraft(@PathVariable String si1,
-                                               @PathVariable String si2,
-                                               @PathVariable String si3,
-                                               @PathVariable Integer playerCount) {
+                                          @PathVariable String si2,
+                                          @PathVariable String si3,
+                                          @PathVariable Integer playerCount) {
         return ResponseEntity.ok(draftService.getDraft(Arrays.asList(si1, si2, si3), playerCount));
     }
 
     @GetMapping("/cube/{cubeIdentifier}/players/{playerCount}")
     public ResponseEntity<Draft> getCubeDraft(@PathVariable String cubeIdentifier,
-                                               @PathVariable Integer playerCount) {
+                                              @PathVariable Integer playerCount) {
         return ResponseEntity.ok(draftService.getCubeDraft(cubeIdentifier, playerCount));
+    }
+
+    @GetMapping("/cube/land/{land}")
+    public ResponseEntity<BoosterCard> getLand(@PathVariable String land) {
+        return draftService.getLand(land).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

@@ -3,6 +3,7 @@ package com.hutchison.scrytop.service;
 import com.hutchison.scrytop.model.card.entity.Card;
 import com.hutchison.scrytop.model.card.enums.CardImgType;
 import com.hutchison.scrytop.model.card.enums.Color;
+import com.hutchison.scrytop.model.draft.BoosterCard;
 import com.hutchison.scrytop.model.scryfall.ScryfallCardDto;
 import com.hutchison.scrytop.repository.CardRepository;
 import lombok.AccessLevel;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.hutchison.scrytop.service.ServiceUtils.likeifyString;
@@ -33,6 +35,16 @@ public class CardService {
                        ScryfallService scryfallService) {
         this.cardRepository = cardRepository;
         this.scryfallService = scryfallService;
+    }
+
+    public Optional<Card> getCardByMultiId(String id) {
+        Optional<ScryfallCardDto> cardByMultiverseId = scryfallService.getCardByMultiverseId(id);
+        if (cardByMultiverseId.isPresent()) {
+            Card saveCard = cardRepository.save(Card.fromScryfallDto(cardByMultiverseId.get()));
+            return Optional.of(saveCard);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Optional<Card> getCardByName(String name) {

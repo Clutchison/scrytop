@@ -2,6 +2,7 @@ package com.hutchison.scrytop.service;
 
 import com.hutchison.scrytop.model.card.entity.Card;
 import com.hutchison.scrytop.model.cube.CubePool;
+import com.hutchison.scrytop.model.draft.BoosterCard;
 import com.hutchison.scrytop.model.draft.BoosterSet;
 import com.hutchison.scrytop.model.draft.Draft;
 import com.hutchison.scrytop.model.draft.PrintRun;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -93,5 +95,13 @@ public class DraftService {
                         si -> si,
                         si -> PrintRun.build(cardService.getCardsInSet(si), si)
                 ));
+    }
+
+    public Optional<BoosterCard> getLand(String id) {
+        Optional<Card> cardByMultiId = cardService.getCardByMultiId(id);
+        return cardByMultiId.map(card -> BoosterCard.builder()
+                .name(card.getName())
+                .imageURIs(card.getImageURIs())
+                .build());
     }
 }
