@@ -33,7 +33,7 @@ public class ScryfallService {
 
     private static final String BASE_URL = "https://api.scryfall.com";
     private static Date lastRequestSendTime = null;
-    private static final long MIN_WAIT_MILLIS = 500;
+    private static final long MIN_WAIT_MILLIS = 1000;
     private final HttpClient client;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
