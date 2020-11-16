@@ -24,8 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Log4j2
 @Service
@@ -66,8 +66,17 @@ public class ScryfallService {
                                         .build())
                         .collect(Collectors.toList());
 
-        List<CollectionResponse> responses = collectionLists.stream()
-                .map(cl -> sendPost(suffix, cl))
+        System.out.println("Getting " + names.size() + " total cards in " + (int) Math.ceil(names.size() / 75.0) + " batches.");
+        List<CollectionResponse> responses = IntStream.range(0, collectionLists.size())
+                .mapToObj(i -> {
+                    System.out.println("Getting batch #" + i + "...");
+                    return sendPost(suffix, collectionLists.get(i));
+                })
+//        List<CollectionResponse> responses = collectionLists.stream()
+//                .map(cl -> {
+//                    System.out.println("Getting next batch...");
+//                    return sendPost(suffix, cl);
+//                })
                 .filter(resp -> resp instanceof CollectionResponse)
                 .map(resp -> (CollectionResponse) resp)
                 .collect(Collectors.toList());

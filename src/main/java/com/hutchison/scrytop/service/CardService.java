@@ -3,7 +3,6 @@ package com.hutchison.scrytop.service;
 import com.hutchison.scrytop.model.card.entity.Card;
 import com.hutchison.scrytop.model.card.enums.CardImgType;
 import com.hutchison.scrytop.model.card.enums.Color;
-import com.hutchison.scrytop.model.draft.BoosterCard;
 import com.hutchison.scrytop.model.scryfall.ScryfallCardDto;
 import com.hutchison.scrytop.repository.CardRepository;
 import lombok.AccessLevel;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.hutchison.scrytop.service.ServiceUtils.likeifyString;
@@ -130,6 +128,11 @@ public class CardService {
                                 .map(es -> es.getKey() + ": " + (es.getValue() == null ? "Fail" : "Success"))
                                 .collect(Collectors.joining("\n"))
         );
+    }
+
+    public Optional<String> clearDb() {
+        cardRepository.deleteAll();
+        return Optional.of("Success.");
     }
 
     private URI getCardImageUriByType(Card card, CardImgType type) {

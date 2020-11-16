@@ -61,4 +61,10 @@ public class CardController {
         Optional<String> response = cardService.fixImageURIs();
         return response.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping(value = "/fix/clearDb")
+    public ResponseEntity<String> clearDb() {
+        Optional<String> response = cardService.clearDb();
+        return response.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
