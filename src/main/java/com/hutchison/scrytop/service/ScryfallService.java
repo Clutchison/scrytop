@@ -41,7 +41,6 @@ public class ScryfallService {
         client = HttpClient.newHttpClient();
     }
 
-
     public Optional<ScryfallCardDto> getCardByName(String name) {
         String suffix = "/cards/named?exact=" + encode(name);
         return cardFromJson(sendGet(suffix));

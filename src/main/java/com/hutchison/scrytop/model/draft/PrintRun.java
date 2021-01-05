@@ -77,8 +77,7 @@ public class PrintRun {
                 setIdentifier,
                 IndexedCardList.builder().cardList(staggerColors(rarityMap.get(MYTHIC))).build(),
                 IndexedCardList.builder().cardList(staggerColors(rarityMap.get(RARE))).build(),
-                IndexedCardList.builder().cardList(staggerColors(rarityMap.get(UNCOMMON))).build(),
-                nonRemovalCommonsByColor.entrySet().stream().collect(Collectors.toMap(
+                IndexedCardList.builder().cardList(staggerColors(rarityMap.get(UNCOMMON))).build(), nonRemovalCommonsByColor.entrySet().stream().collect(Collectors.toMap(
                         Map.Entry::getKey,
                         es -> IndexedCardList.builder().cardList(es.getValue()).build()
                 )),
